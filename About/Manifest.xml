@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Manifest>
+  <identifier>net.pardeike.rimworld.mod.visualexceptions</identifier>
+  <version>0.9.0.0</version>
+  <targetVersions>
+    <li>1.2.0</li>
+  </targetVersions>
+  <dependencies>
+  </dependencies>
+  <incompatibleWith>
+  </incompatibleWith>
+  <loadBefore>
+    <li>Harmony</li>
+    <li>Core</li>
+  </loadBefore>
+  <manifestUri>https://raw.githubusercontent.com/pardeike/RimWorldVisualExceptions/latest/About/Manifest.xml</manifestUri>
+  <downloadUri>https://github.com/pardeike/RimWorldVisualExceptions/releases/latest</downloadUri>
+</Manifest>
