@@ -8,6 +8,8 @@ This mod shows you exceptions graphically, for example like this:
 
 Click on the green [Code] button and choose `Download ZIP` or [this link](https://codeload.github.com/pardeike/VisualExceptions/zip/refs/heads/main). Once downloaded, unzip to get a folder called `VisualExceptions-main`, rename it simply to `VisualExceptions` and put that folder into your RimWorld `Mods` folder. Follow [this guide](https://rimworldwiki.com/wiki/Installing_mods) on how to install mods offline.
 
+This mod must be **AT THE TOP OF THE MOD LIST**. Yes, above Harmony.
+
 # Usage
 
 Once you restart the game, the mod will automatically show all exceptions in a new tab with a Harmony logo, just like in the screenshot above. Each exception will be decoded so it contains the exact mods that are contained in the stacktrace because once this text is exported to a log the meaning is lost and is very hard to reconstruct.
