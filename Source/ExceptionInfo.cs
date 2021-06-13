@@ -39,7 +39,7 @@ namespace VisualExceptions
 					var metaData = modInfo.metaData;
 					if (previousMethods.Add(method))
 					{
-						details.topMethod = details.topMethod ?? method.ShortDescription();
+						details.topMethod ??= method.ShortDescription();
 						var assembly = method.DeclaringType.Assembly;
 						if (assembly != Tools.HarmonyModAssembly)
 						{

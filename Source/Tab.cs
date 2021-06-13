@@ -1,6 +1,4 @@
-﻿using HarmonyLib;
-using RimWorld;
-using System.Collections.Generic;
+﻿using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -9,8 +7,6 @@ namespace VisualExceptions
 	public class Tab : MainButtonDef
 	{
 		internal static Tab instance = new Tab();
-		internal static readonly AccessTools.FieldRef<MainButtonsRoot, List<MainButtonDef>> allButtonsInOrderRef = AccessTools.FieldRefAccess<MainButtonsRoot, List<MainButtonDef>>("allButtonsInOrder");
-		internal static readonly AccessTools.FieldRef<MainButtonDef, Texture2D> iconRef = AccessTools.FieldRefAccess<MainButtonDef, Texture2D>("icon");
 
 		public Tab() : base()
 		{
@@ -42,10 +38,10 @@ namespace VisualExceptions
 
 		internal static void AddExceptions_Play(UIRoot_Play rootPlay)
 		{
-			var allTabs = allButtonsInOrderRef(rootPlay.mainButtonsRoot);
+			var allTabs = rootPlay.mainButtonsRoot.allButtonsInOrder;
 			if (allTabs.Contains(instance) == false)
 			{
-				iconRef(instance) = Assets.harmonyTab;
+				instance.icon = Assets.harmonyTab;
 				allTabs.Insert(0, instance);
 				Tools.PlayErrorSound();
 			}
@@ -55,7 +51,7 @@ namespace VisualExceptions
 		{
 			if (Find.WindowStack.IsOpen<ExceptionInspector>() == false)
 			{
-				iconRef(instance) = Assets.harmonyTab;
+				instance.icon = Assets.harmonyTab;
 				Find.WindowStack.Add(new ExceptionInspector
 				{
 					def = instance,

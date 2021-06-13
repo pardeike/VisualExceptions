@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using RimWorld;
+﻿using RimWorld;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,12 +11,11 @@ namespace VisualExceptions
 		internal Vector2 customPosition = Vector2.zero;
 		internal float scrollViewHeight = 0;
 		internal Vector2 scrollPosition = Vector2.zero;
-		static readonly AccessTools.FieldRef<Window, WindowResizer> resizer = AccessTools.FieldRefAccess<Window, WindowResizer>("resizer");
 
 		public ExceptionInspector() : base()
 		{
 			def = Tab.instance;
-			resizer(this) = new WindowResizer()
+			base.resizer = new WindowResizer()
 			{
 				minWindowSize = new Vector2(520, 160)
 			};
@@ -25,7 +23,7 @@ namespace VisualExceptions
 
 		public override Vector2 InitialSize => new Vector2(600, 600);
 		public override Vector2 RequestedTabSize => InitialSize;
-		protected override float Margin => Columns.spacing;
+		public override float Margin => Columns.spacing;
 
 		public override void DoWindowContents(Rect inRect)
 		{
@@ -110,7 +108,7 @@ namespace VisualExceptions
 			Find.WindowStack.Add(new FloatMenu(options));
 		}
 
-		protected override void SetInitialSizeAndPosition()
+		public override void SetInitialSizeAndPosition()
 		{
 			base.SetInitialSizeAndPosition();
 			doCloseX = true;
@@ -142,7 +140,7 @@ namespace VisualExceptions
 			if (ExceptionState.Exceptions.Count == 0 && Find.UIRoot is UIRoot_Play rootPlay)
 			{
 				var mainButtons = rootPlay.mainButtonsRoot;
-				_ = Tab.allButtonsInOrderRef(mainButtons).RemoveAll(def => def == Tab.instance);
+				_ = mainButtons.allButtonsInOrder.RemoveAll(def => def == Tab.instance);
 			}
 		}
 	}
