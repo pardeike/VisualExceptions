@@ -13,6 +13,6 @@
     <li>Harmony</li>
     <li>Core</li>
   </loadBefore>
-  <manifestUri>https://raw.githubusercontent.com/pardeike/RimWorldVisualExceptions/latest/About/Manifest.xml</manifestUri>
-  <downloadUri>https://github.com/pardeike/RimWorldVisualExceptions/releases/latest</downloadUri>
+  <manifestUri>https://raw.githubusercontent.com/pardeike/VisualExceptions/latest/About/Manifest.xml</manifestUri>
+  <downloadUri>https://github.com/pardeike/VisualExceptions/releases/latest</downloadUri>
 </Manifest>
