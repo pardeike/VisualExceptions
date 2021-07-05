@@ -197,7 +197,7 @@ namespace VisualExceptions
 			var name = mod.meta.Name.Truncate(200, truncatedModNamesCache);
 			return rect =>
 			{
-				var author = "© " + mod.meta.Author;
+				var author = "© " + mod.meta.GetAuthor();
 				if (rect.width == 0)
 				{
 					var w1 = name.Size().x + iconDim + spacing;

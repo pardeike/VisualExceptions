@@ -55,6 +55,13 @@ namespace VisualExceptions
 				action(item, i++);
 		}
 
+		internal static string GetAuthor(this ModMetaData metaData)
+		{
+			var s1 = Traverse.Create(metaData).Property("AuthorsString").GetValue<string>();
+			var s2 = Traverse.Create(metaData).Property("Author").GetValue<string>();
+			return s1 ?? s2 ?? "";
+		}
+
 		internal static string ShortDescription(this Type type)
 		{
 			if (type is null) return "null";
@@ -93,6 +100,7 @@ namespace VisualExceptions
 
 		internal static void Button(Texture2D texture, Rect rect, string tipKey, bool highlight, Action action)
 		{
+			_ = highlight;
 			if (texture != null)
 			{
 				var oldColor = GUI.color;
