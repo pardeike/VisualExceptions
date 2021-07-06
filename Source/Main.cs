@@ -13,6 +13,7 @@ namespace VisualExceptions
 			var harmony = new Harmony(harmony_id);
 			_ = new PatchClassProcessor(harmony, typeof(ShowHarmonyVersionOnMainScreen)).Patch();
 
+
 			ExceptionState.Load();
 			if (ExceptionState.configuration.Debugging)
 				Patcher.Apply(harmony);

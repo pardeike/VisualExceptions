@@ -97,14 +97,14 @@ namespace VisualExceptions
 			var onOff = mod.meta.Active ? $"{"On".Translate()} → {"Off".Translate()}" : $"{"Off".Translate()} → {"On".Translate()}";
 			var options = new List<FloatMenuOption>();
 			if (mod.meta.OnSteamWorkshop)
-				options.Add(new FloatMenuOption("WorkshopPage".Translate(), mod.OpenSteam, MenuOptionPriority.High));
+				options.Add(Tools.NewFloatMenuOption("WorkshopPage".Translate(), mod.OpenSteam, MenuOptionPriority.High));
 			if (mod.meta.Url.NullOrEmpty() == false)
-				options.Add(new FloatMenuOption("ModClickToGoToWebsite".Translate().Replace(".", ""), mod.OpenURL, MenuOptionPriority.High));
-			options.Add(new FloatMenuOption(onOff, () => mod.ToggleActive(), mod.meta.Active ? Assets.disableMenu : Assets.enableMenu, Color.white));
+				options.Add(Tools.NewFloatMenuOption("ModClickToGoToWebsite".Translate().Replace(".", ""), mod.OpenURL, MenuOptionPriority.High));
+			options.Add(Tools.NewFloatMenuOption(onOff, () => mod.ToggleActive(), mod.meta.Active ? Assets.disableMenu : Assets.enableMenu, Color.white));
 			if (mod.IsUnpatched() == false)
-				options.Add(new FloatMenuOption($"{"Credit_AdditionalCode".Translate()} {"Off".Translate().ToLower()}", () => mod.Unpatch(), Assets.unpatchMenu, Color.white));
-			options.Add(new FloatMenuOption(mod.meta.Name, null));
-			options.Add(new FloatMenuOption("VersionIndicator".Translate(mod.version), null));
+				options.Add(Tools.NewFloatMenuOption($"{"Credit_AdditionalCode".Translate()} {"Off".Translate().ToLower()}", () => mod.Unpatch(), Assets.unpatchMenu, Color.white));
+			options.Add(Tools.NewFloatMenuOption(mod.meta.Name, null));
+			options.Add(Tools.NewFloatMenuOption("VersionIndicator".Translate(mod.version), null));
 			Find.WindowStack.Add(new FloatMenu(options));
 		}
 

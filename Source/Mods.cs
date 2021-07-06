@@ -65,11 +65,15 @@ namespace VisualExceptions
 		internal static void Unpatch(this ExceptionDetails.Mod mod)
 		{
 			var contentPack = LoadedModManager.RunningMods.FirstOrDefault(cp => cp.PackageId == mod.meta.PackageId);
-			contentPack.assemblies.loadedAssemblies
+			contentPack?.assemblies.loadedAssemblies
 				.Where(assembly => assembly.GetName().Name != "0Harmony")
 				.Select(assembly => ActiveHarmonyIDs.GetValueSafe(assembly))
 				.OfType<string>().Distinct()
-				.Do(id => { new Harmony(id).UnpatchAll(id); SoundDefOf.TabOpen.PlayOneShotOnCamera(null); });
+				.Do(id =>
+				{
+					new Harmony(id).UnpatchAll(id);
+					SoundDefOf.TabOpen.PlayOneShotOnCamera(null);
+				});
 			_ = UnpatchedMods.Add(mod.meta.PackageId);
 		}
 

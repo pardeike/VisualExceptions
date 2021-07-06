@@ -71,7 +71,7 @@ namespace VisualExceptions
 			}
 			catch (Exception ex)
 			{
-				FileLog.Log($"Transpiler Exception: {ex}");
+				Log.Error($"Transpiler Exception: {ex}");
 			}
 			if (found == false) return null;
 			return list.AsEnumerable();
@@ -147,12 +147,21 @@ namespace VisualExceptions
 	[HarmonyPatch(new[] { typeof(string) })]
 	static class RememberHarmonyIDs
 	{
+		static readonly MethodInfo mPostfix = SymbolExtensions.GetMethodInfo(() => Postfix(null));
+
 		internal static void Postfix(string id)
 		{
-			var assembly = new StackTrace(false).GetFrames()
-				.Where(f => f.GetMethod().IsConstructor)
-				.Select(f => f.GetMethod().DeclaringType.Assembly)
-				.FirstOrDefault();
+			var frames = new StackTrace(false).GetFrames();
+			var i = 0;
+			while (i < frames.Length)
+			{
+				var method = Harmony.GetMethodFromStackframe(frames[i++]);
+				if (method == mPostfix)
+					break;
+			}
+			i++;
+			if (i >= frames.Length) return;
+			var assembly = frames[i].GetMethod().DeclaringType.Assembly;
 			if (assembly != null)
 				Mods.ActiveHarmonyIDs[assembly] = id;
 		}
