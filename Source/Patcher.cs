@@ -151,6 +151,9 @@ namespace VisualExceptions
 
 		internal static void Postfix(string id)
 		{
+			if (Mods.ActiveHarmonyIDs.Values.Contains(id))
+				return;
+
 			var frames = new StackTrace(false).GetFrames();
 			var i = 0;
 			while (i < frames.Length)

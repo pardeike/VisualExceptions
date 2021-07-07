@@ -35,8 +35,8 @@ namespace VisualExceptions
 				if (File.Exists(configurationPath))
 				{
 					var serializer = new DataContractJsonSerializer(typeof(Configuration));
-					using (var stream = new FileStream(configurationPath, FileMode.Open))
-						configuration = (Configuration)serializer.ReadObject(stream);
+					using var stream = new FileStream(configurationPath, FileMode.Open);
+					configuration = (Configuration)serializer.ReadObject(stream);
 				}
 				else
 					configuration = new Configuration { Debugging = true };
@@ -52,8 +52,8 @@ namespace VisualExceptions
 			try
 			{
 				var serializer = new DataContractJsonSerializer(typeof(Configuration));
-				using (var stream = new FileStream(configurationPath, FileMode.OpenOrCreate))
-					serializer.WriteObject(stream, configuration);
+				using var stream = new FileStream(configurationPath, FileMode.OpenOrCreate);
+				serializer.WriteObject(stream, configuration);
 			}
 			finally
 			{
