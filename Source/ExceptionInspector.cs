@@ -94,15 +94,15 @@ namespace VisualExceptions
 
 		static void ChooseMod(ExceptionDetails.Mod mod)
 		{
-			var onOff = mod.meta.Active ? $"{"On".Translate()} → {"Off".Translate()}" : $"{"Off".Translate()} → {"On".Translate()}";
+			var onOff = mod.meta.Active ? "Deactivate this mod (needs restart)" : "Reactivate this mod";
 			var options = new List<FloatMenuOption>();
 			if (mod.meta.OnSteamWorkshop)
-				options.Add(Tools.NewFloatMenuOption("WorkshopPage".Translate(), mod.OpenSteam, MenuOptionPriority.High));
+				options.Add(Tools.NewFloatMenuOption("Open Workshop Page", mod.OpenSteam, MenuOptionPriority.High));
 			if (mod.meta.Url.NullOrEmpty() == false)
-				options.Add(Tools.NewFloatMenuOption("ModClickToGoToWebsite".Translate().Replace(".", ""), mod.OpenURL, MenuOptionPriority.High));
+				options.Add(Tools.NewFloatMenuOption("Open Website", mod.OpenURL, MenuOptionPriority.High));
 			options.Add(Tools.NewFloatMenuOption(onOff, () => mod.ToggleActive(), mod.meta.Active ? Assets.disableMenu : Assets.enableMenu, Color.white));
 			if (mod.IsUnpatched() == false)
-				options.Add(Tools.NewFloatMenuOption($"{"Credit_AdditionalCode".Translate()} {"Off".Translate().ToLower()}", () => mod.Unpatch(), Assets.unpatchMenu, Color.white));
+				options.Add(Tools.NewFloatMenuOption("Remove Harmony Patches", () => mod.Unpatch(), Assets.unpatchMenu, Color.white));
 			options.Add(Tools.NewFloatMenuOption(mod.meta.Name, null));
 			options.Add(Tools.NewFloatMenuOption("VersionIndicator".Translate(mod.version), null));
 			Find.WindowStack.Add(new FloatMenu(options));

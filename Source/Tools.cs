@@ -177,7 +177,7 @@ namespace VisualExceptions
 
 			GUI.BeginGroup(new Rect(10f, 74f, 240f, 40f));
 			GUI.color = new Color(1f, 1f, 1f, 0.5f);
-			var devText = "DevelopmentMode".Translate().ToString();
+			var devText = "Visual Exceptions Enabled";
 			var devTextLen = devText.Size().x;
 			Widgets.Label(debugLabelRect, devText);
 			GUI.color = Color.white;
