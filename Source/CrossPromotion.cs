@@ -535,7 +535,7 @@ namespace CrossPromotionModule
 			if (mButtonText == null)
 			{
 				mButtonText = AccessTools.Method(typeof(WidgetRow), nameof(WidgetRow.ButtonText));
-				buttonTextDefaults = mButtonText.GetParameters().Select(p => AccessTools.GetDefaultValue(p.ParameterType)).ToArray();
+				buttonTextDefaults = mButtonText.GetParameters().Select(p => p.DefaultValue).ToArray();
 			}
 			var parameters = buttonTextDefaults;
 			parameters[0] = label;
