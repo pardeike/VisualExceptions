@@ -11,10 +11,11 @@ using System.Threading;
 using UnityEngine;
 using Verse;
 using Verse.Steam;
-using VisualExceptions;
 
 namespace CrossPromotionModule
 {
+	// works with RimWorld 1.2 and 1.3
+
 	[StaticConstructorOnStartup]
 	static class CrossPromotion
 	{
@@ -40,12 +41,12 @@ namespace CrossPromotionModule
 			);
 
 			_ = instance.Patch(
-				AccessTools.DeclaredMethod(typeof(Page_ModsConfig), nameof(Page_ModsConfig.PostClose)),
+				SymbolExtensions.GetMethodInfo(() => new Page_ModsConfig().PostClose()),
 				postfix: new HarmonyMethod(SymbolExtensions.GetMethodInfo(() => Page_ModsConfig_PostClose_Postfix()))
 			);
 
 			_ = instance.Patch(
-				AccessTools.DeclaredMethod(typeof(WorkshopItems), "Notify_Subscribed"),
+				SymbolExtensions.GetMethodInfo(() => WorkshopItems.Notify_Subscribed(default)),
 				postfix: new HarmonyMethod(SymbolExtensions.GetMethodInfo(() => WorkshopItems_Notify_Subscribed_Postfix(new PublishedFileId_t(0))))
 			);
 
@@ -317,7 +318,7 @@ namespace CrossPromotionModule
 			var widgetRow = new WidgetRow(imageRect.xMax, imageRect.yMax + 8f, UIDirection.LeftThenDown, width, 8f);
 			if (isLocalFile == false)
 			{
-				if (widgetRow.ButtonText("Unsubscribe".Translate(), null, true, true))
+				if (widgetRow.CrossVersionButtonText("Unsubscribe".Translate(), null, true, true))
 				{
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmUnsubscribe".Translate(mod.Name), () =>
 					{
@@ -333,16 +334,15 @@ namespace CrossPromotionModule
 			}
 			if (isSubbed)
 			{
-				if (widgetRow.ButtonText("WorkshopPage".Translate(), null, true, true))
+				if (widgetRow.CrossVersionButtonText("WorkshopPage".Translate(), null, true, true))
 					SteamUtility.OpenWorkshopPage(new PublishedFileId_t(mainModID));
 			}
 			if (Prefs.DevMode && mod.CanToUploadToWorkshop())
 			{
 				widgetRow = new WidgetRow(imageRect.xMin, imageRect.yMax + 8f, UIDirection.RightThenDown, width, 8f);
-				if (widgetRow.ButtonText("Upload", null, true, true))
+				if (widgetRow.CrossVersionButtonText("Upload", null, true, true))
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSteamWorkshopUpload".Translate(), () => Workshop.Upload(mod), true, null));
 			}
-
 			Widgets.Label(textRect, description);
 			Widgets.EndScrollView();
 		}
@@ -355,7 +355,7 @@ namespace CrossPromotionModule
 			var headerHeight = 30f;
 			var headerRect = new Rect(leftColumn + 10f, -4f, rightColumn - 20f, headerHeight);
 			Text.Anchor = TextAnchor.UpperCenter;
-			Widgets.Label(headerRect, "Mods of " + mod.GetAuthor().Replace("Andreas Pardeike", "Brrainz") + ":".Truncate(headerRect.width, null));
+			Widgets.Label(headerRect, "Mods of " + mod.CrossVersionAuthor().Replace("Andreas Pardeike", "Brrainz") + ":".Truncate(headerRect.width, null));
 			Text.Anchor = TextAnchor.UpperLeft;
 
 			var outRect = new Rect(leftColumn + 10f, headerHeight - 4f, rightColumn, mainRect.height - (headerHeight - 4f));
@@ -517,5 +517,32 @@ namespace CrossPromotionModule
 			: base(text, buttonAText, buttonAAction, buttonBText, buttonBAction, title, buttonADestructive, acceptAction, cancelAction) { }
 
 		public override Vector2 InitialSize => new Vector2(320, 240);
+	}
+
+	internal static class CrossVersionMethods
+	{
+		internal static string CrossVersionAuthor(this ModMetaData mod)
+		{
+			var str1 = Traverse.Create(mod).Property("AuthorsString").GetValue<string>();
+			var str2 = Traverse.Create(mod).Property("Author").GetValue<string>();
+			return (str1 ?? str2).Replace("Andreas Pardeike", "Brrainz");
+		}
+
+		private static MethodInfo mButtonText = null;
+		private static object[] buttonTextDefaults = new object[0];
+		internal static bool CrossVersionButtonText(this WidgetRow row, string label, string tooltip = null, bool drawBackground = true, bool doMouseoverSound = true)
+		{
+			if (mButtonText == null)
+			{
+				mButtonText = AccessTools.Method(typeof(WidgetRow), nameof(WidgetRow.ButtonText));
+				buttonTextDefaults = mButtonText.GetParameters().Select(p => AccessTools.GetDefaultValue(p.ParameterType)).ToArray();
+			}
+			var parameters = buttonTextDefaults;
+			parameters[0] = label;
+			parameters[1] = tooltip;
+			parameters[2] = drawBackground;
+			parameters[3] = doMouseoverSound;
+			return (bool)mButtonText.Invoke(row, parameters);
+		}
 	}
 }
