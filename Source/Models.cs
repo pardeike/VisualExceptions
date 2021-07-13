@@ -12,6 +12,8 @@ namespace VisualExceptions
 	internal class Configuration
 	{
 		[DataMember] internal bool Debugging { get; set; }
+		[DataMember] internal bool TabToTheRight { get; set; }
+		[DataMember] internal bool UseSound { get; set; }
 	}
 
 	[DataContract]

@@ -13,27 +13,16 @@ namespace VisualExceptions
 	static class Patcher
 	{
 		internal static bool patchesApplied = false;
+		internal static string harmony_id = "net.pardeike.rimworld.lib.harmony";
 
-		internal static void Apply(Harmony harmony)
+		internal static void Apply()
 		{
+			var harmony = new Harmony(harmony_id);
 			_ = new PatchClassProcessor(harmony, typeof(RunloopExceptionHandler)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(ShowLoadingExceptions)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(AddHarmonyTabWhenNecessary)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(RememberHarmonyIDs)).Patch();
 			patchesApplied = true;
-		}
-	}
-
-	// draw the harmony lib version at the start screen
-	// Note: always patched from HarmonyMain()
-	//
-	[HarmonyPatch(typeof(VersionControl))]
-	[HarmonyPatch(nameof(VersionControl.DrawInfoInCorner))]
-	static class ShowHarmonyVersionOnMainScreen
-	{
-		internal static void Postfix()
-		{
-			Tools.DrawInfoSection();
 		}
 	}
 
@@ -79,13 +68,10 @@ namespace VisualExceptions
 
 		internal static IEnumerable<MethodBase> TargetMethods()
 		{
-			var methods = PatchPersistence.Methods;
-			if (methods.Any()) return methods;
-			methods = typeof(Pawn).Assembly.GetTypes()
+			var methods = typeof(Pawn).Assembly.GetTypes()
 				.Where(t => t.IsGenericType == false && (t.FullName.StartsWith("Verse.") || t.FullName.StartsWith("RimWorld.") || t.FullName.StartsWith("RuntimeAudioClipLoader.")))
 				.SelectMany(t => AccessTools.GetDeclaredMethods(t))
 				.Where(m => m.IsGenericMethod == false && HasCatch(m));
-			PatchPersistence.Methods = methods;
 			return methods;
 		}
 

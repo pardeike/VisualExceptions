@@ -17,9 +17,6 @@ namespace VisualExceptions
 
 	static class Tools
 	{
-		static readonly Rect debugLabelRect = new Rect(28f, 16f, 212f, 20f);
-		static readonly Rect debugImageRect = new Rect(0f, 20f, 23f, 12f);
-		static readonly Rect debugButtonRect = new Rect(0f, 16f, 240f, 36f);
 		internal static readonly Assembly HarmonyModAssembly = typeof(Tools).Assembly;
 		internal static readonly string RimworldAssemblyName = typeof(Pawn).Assembly.GetName().Name;
 		internal static AudioSource audioSource = null;
@@ -46,7 +43,8 @@ namespace VisualExceptions
 
 		internal static void PlayErrorSound()
 		{
-			GetAudioSource().PlayOneShot(Assets.error);
+			if (ExceptionState.configuration.UseSound)
+				GetAudioSource().PlayOneShot(Assets.error);
 		}
 
 		internal static void Iterate<T>(this IEnumerable<T> collection, Action<T, int> action)
@@ -167,37 +165,6 @@ namespace VisualExceptions
 			}
 			TooltipHandler.TipRegionByKey(rect, tipKey);
 			if (Widgets.ButtonInvisible(rect)) action();
-		}
-
-		internal static void DrawInfoSection()
-		{
-			var oldFont = Text.Font;
-			var oldColor = GUI.color;
-			Text.Font = GameFont.Small;
-
-			GUI.BeginGroup(new Rect(10f, 74f, 240f, 40f));
-			GUI.color = new Color(1f, 1f, 1f, 0.5f);
-			var devText = "Visual Exceptions Enabled";
-			var devTextLen = devText.Size().x;
-			Widgets.Label(debugLabelRect, devText);
-			GUI.color = Color.white;
-			GUI.DrawTexture(debugImageRect, Assets.debugToggle[ExceptionState.configuration.Debugging ? 1 : 0]);
-			if (Patcher.patchesApplied != ExceptionState.configuration.Debugging && DateTime.Now.Second % 2 == 0)
-			{
-				var rect = new Rect(debugImageRect.xMax + devTextLen + 10, debugImageRect.y - 2, debugImageRect.height + 4, debugImageRect.height + 4);
-				GUI.DrawTexture(rect, Assets.restart);
-			}
-			if (Widgets.ButtonInvisible(debugButtonRect, false))
-			{
-				ExceptionState.configuration.Debugging = !ExceptionState.configuration.Debugging;
-				if (ExceptionState.configuration.Debugging)
-					PatchPersistence.ClearMethods();
-				ExceptionState.Save();
-			}
-			GUI.EndGroup();
-
-			GUI.color = oldColor;
-			Text.Font = oldFont;
 		}
 	}
 }

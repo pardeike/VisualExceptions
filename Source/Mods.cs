@@ -72,7 +72,8 @@ namespace VisualExceptions
 				.Do(id =>
 				{
 					new Harmony(id).UnpatchAll(id);
-					SoundDefOf.TabOpen.PlayOneShotOnCamera(null);
+					if (ExceptionState.configuration.UseSound)
+						SoundDefOf.TabOpen.PlayOneShotOnCamera(null);
 				});
 			_ = UnpatchedMods.Add(mod.meta.PackageId);
 		}
@@ -80,25 +81,25 @@ namespace VisualExceptions
 		internal static IEnumerable<ModInfo> GetPrefixes(Patches info)
 		{
 			if (info == null) return new List<ModInfo>().AsEnumerable();
-			return AddMetadata(info.Prefixes.Where(t => t.owner != HarmonyMain.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
+			return AddMetadata(info.Prefixes.Where(t => t.owner != Patcher.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
 		}
 
 		internal static IEnumerable<ModInfo> GetPostfixes(Patches info)
 		{
 			if (info == null) return new List<ModInfo>().AsEnumerable();
-			return AddMetadata(info.Postfixes.Where(t => t.owner != HarmonyMain.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
+			return AddMetadata(info.Postfixes.Where(t => t.owner != Patcher.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
 		}
 
 		internal static IEnumerable<ModInfo> GetTranspilers(Patches info)
 		{
 			if (info == null) return new List<ModInfo>().AsEnumerable();
-			return AddMetadata(info.Transpilers.Where(t => t.owner != HarmonyMain.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
+			return AddMetadata(info.Transpilers.Where(t => t.owner != Patcher.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
 		}
 
 		internal static IEnumerable<ModInfo> GetFinalizers(Patches info)
 		{
 			if (info == null) return new List<ModInfo>().AsEnumerable();
-			return AddMetadata(info.Finalizers.Where(t => t.owner != HarmonyMain.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
+			return AddMetadata(info.Finalizers.Where(t => t.owner != Patcher.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
 		}
 
 		static IEnumerable<ModInfo> AddMetadata(IEnumerable<MethodInfo> methods)

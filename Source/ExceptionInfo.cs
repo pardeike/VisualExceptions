@@ -87,7 +87,8 @@ namespace VisualExceptions
 		internal void Remove()
 		{
 			ExceptionState.Remove(this);
-			SoundDefOf.TabOpen.PlayOneShotOnCamera(null);
+			if (ExceptionState.configuration.UseSound)
+				SoundDefOf.TabOpen.PlayOneShotOnCamera(null);
 		}
 
 		internal void Ban()

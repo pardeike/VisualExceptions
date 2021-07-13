@@ -158,7 +158,8 @@ namespace VisualExceptions
 						Tools.Button(Assets.copy, r, "Copy", true, () =>
 						{
 							GUIUtility.systemCopyBuffer = exception().ToString();
-							SoundDefOf.Tick_Low.PlayOneShotOnCamera(null);
+							if (ExceptionState.configuration.UseSound)
+								SoundDefOf.Tick_Low.PlayOneShotOnCamera(null);
 						});
 					}
 				};

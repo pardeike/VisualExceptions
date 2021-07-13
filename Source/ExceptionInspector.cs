@@ -8,7 +8,6 @@ namespace VisualExceptions
 {
 	public class ExceptionInspector : MainTabWindow
 	{
-		internal Vector2 customPosition = Vector2.zero;
 		internal float scrollViewHeight = 0;
 		internal Vector2 scrollPosition = Vector2.zero;
 
@@ -114,18 +113,9 @@ namespace VisualExceptions
 			doCloseX = true;
 			draggable = true;
 			resizeable = true;
-			if (customPosition != Vector2.zero)
-			{
-				if (customPosition.x > 0)
-					windowRect.x = customPosition.x;
-				else
-					windowRect.x = UI.screenWidth - windowRect.width + customPosition.x;
-
-				if (customPosition.y > 0)
-					windowRect.y = customPosition.y;
-				else
-					windowRect.y = UI.screenHeight - windowRect.height + customPosition.y;
-			}
+			if (ExceptionState.configuration.TabToTheRight)
+				windowRect.x = UI.screenWidth - windowRect.width;
+			Log.Warning($"{windowRect}");
 		}
 
 		public override void Close(bool doCloseSound = true)

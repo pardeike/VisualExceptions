@@ -1,5 +1,4 @@
 ﻿using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace VisualExceptions
@@ -13,7 +12,6 @@ namespace VisualExceptions
 			tabWindowClass = typeof(ExceptionInspector);
 			defName = "harmony";
 			description = "Harmony";
-			order = -99999;
 			validWithoutMap = true;
 			minimized = true;
 		}
@@ -42,7 +40,10 @@ namespace VisualExceptions
 			if (allTabs.Contains(instance) == false)
 			{
 				instance.icon = Assets.harmonyTab;
-				allTabs.Insert(0, instance);
+				if (ExceptionState.configuration.TabToTheRight)
+					allTabs.Add(instance);
+				else
+					allTabs.Insert(0, instance);
 				Tools.PlayErrorSound();
 			}
 		}
@@ -52,11 +53,7 @@ namespace VisualExceptions
 			if (Find.WindowStack.IsOpen<ExceptionInspector>() == false)
 			{
 				instance.icon = Assets.harmonyTab;
-				Find.WindowStack.Add(new ExceptionInspector
-				{
-					def = instance,
-					customPosition = new Vector2(10, 10)
-				});
+				Find.WindowStack.Add(new ExceptionInspector { def = instance });
 				Tools.PlayErrorSound();
 			}
 		}

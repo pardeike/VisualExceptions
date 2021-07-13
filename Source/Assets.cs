@@ -11,7 +11,6 @@ namespace VisualExceptions
 		internal static readonly Texture2D cancel = ContentFinder<Texture2D>.Get("UI/Designators/Cancel", true);
 
 		internal static readonly Texture2D harmonyTab = LoadTexture("HarmonyTab");
-		internal static readonly Texture2D[] debugToggle = LoadTextures("Debug0", "Debug1");
 		internal static readonly Texture2D restart = LoadTexture("Restart");
 		internal static readonly Texture2D exception = LoadTexture("Exception");
 		internal static readonly Texture2D location = LoadTexture("Location");

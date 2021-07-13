@@ -39,7 +39,7 @@ namespace VisualExceptions
 					configuration = (Configuration)serializer.ReadObject(stream);
 				}
 				else
-					configuration = new Configuration { Debugging = true };
+					configuration = new Configuration { Debugging = true, TabToTheRight = false, UseSound = true };
 			}
 			catch
 			{
