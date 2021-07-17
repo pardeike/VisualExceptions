@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using HarmonyLib;
+using System.Linq;
+using UnityEngine;
 using Verse;
 
 namespace VisualExceptions
@@ -22,21 +24,21 @@ namespace VisualExceptions
 			list.Gap(12f);
 
 			var conf = ExceptionState.configuration;
-			var debugging = conf.Debugging;
-			var tabToTheRight = conf.TabToTheRight;
-			var useSound = conf.UseSound;
-
-			list.CheckboxLabeled("Enabled", ref debugging);
-			list.CheckboxLabeled("Show exceptions to the right", ref tabToTheRight);
-			list.CheckboxLabeled("Use sound", ref useSound);
-
-			if (debugging != conf.Debugging || tabToTheRight != conf.TabToTheRight || useSound != conf.UseSound)
+			var props = AccessTools.GetDeclaredProperties(typeof(Configuration));
+			var values = props.Select(prop => (prop, prop.TryGetAttribute<SettingsAttribute>(), (bool)prop.GetValue(conf))).ToArray();
+			var needsSave = false;
+			foreach (var value in values)
 			{
-				conf.Debugging = debugging;
-				conf.TabToTheRight = tabToTheRight;
-				conf.UseSound = useSound;
-				ExceptionState.Save();
+				var temp = value.Item3;
+				list.CheckboxLabeled(value.Item2.label, ref temp);
+				if (temp != value.Item3)
+				{
+					needsSave = true;
+					value.prop.SetValue(conf, temp);
+				}
 			}
+			if (needsSave)
+				ExceptionState.Save();
 
 			list.End();
 		}

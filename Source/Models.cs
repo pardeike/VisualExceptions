@@ -8,12 +8,35 @@ using Verse;
 
 namespace VisualExceptions
 {
+	[AttributeUsage(AttributeTargets.Property)]
+	internal class SettingsAttribute : Attribute
+	{
+		internal readonly string label;
+
+		internal SettingsAttribute(string label)
+		{
+			this.label = label;
+		}
+	}
+
 	[DataContract]
 	internal class Configuration
 	{
-		[DataMember] internal bool Debugging { get; set; }
-		[DataMember] internal bool TabToTheRight { get; set; }
-		[DataMember] internal bool UseSound { get; set; }
+		[DataMember]
+		[Settings("Enabled")]
+		internal bool Debugging { get; set; }
+
+		[DataMember]
+		[Settings("Show exceptions to the right")]
+		internal bool TabToTheRight { get; set; }
+
+		[DataMember]
+		[Settings("Use sound")]
+		internal bool UseSound { get; set; }
+
+		[DataMember]
+		[Settings("Include Finalizers")]
+		internal bool IncludeFinalizers { get; set; }
 	}
 
 	[DataContract]

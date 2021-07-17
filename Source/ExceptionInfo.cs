@@ -121,7 +121,8 @@ namespace VisualExceptions
 				var method = Harmony.GetMethodFromStackframe(frame);
 				var patches = Mods.FindPatches(method);
 
-				modInfos.AddRange(Mods.GetFinalizers(patches));
+				if (ExceptionState.configuration.IncludeFinalizers)
+					modInfos.AddRange(Mods.GetFinalizers(patches));
 				modInfos.AddRange(Mods.GetPostfixes(patches));
 				modInfos.AddRange(Mods.GetPrefixes(patches));
 				modInfos.AddRange(Mods.GetTranspilers(patches));
