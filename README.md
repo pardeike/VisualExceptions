@@ -10,7 +10,9 @@ Choose **Releases** on the right, find the latest release and in the Assets fiel
 
 # Usage
 
-If it isn't already enabled at the RimWorld start screen (top left) you need to switch it on there. Once you restart the game, the mod will automatically show all exceptions in a new tab with a Harmony logo, just like in the screenshot above. Each exception will be decoded so it contains the exact mods that are contained in the stacktrace because once this text is exported to a log the meaning is lost and is very hard to reconstruct.
+Installing the mod for the first time will default to it being active. Instead of removing it from your mod list you can also just deactivate it. You can change that and other things in the mods configuration settings.
+
+When the mod is active it will automatically show all exceptions in a new tab with a Harmony logo, just like in the screenshot above. Each exception will be decoded so it contains the exact mods that are contained in the stacktrace because once this text is exported to a log the meaning is lost and is very hard to reconstruct.
 
 The window has a few functions to help you:
 
