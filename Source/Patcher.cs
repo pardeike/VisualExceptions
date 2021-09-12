@@ -18,7 +18,7 @@ namespace VisualExceptions
 		internal static void Apply()
 		{
 			var harmony = new Harmony(harmony_id);
-			_ = new PatchClassProcessor(harmony, typeof(RunloopExceptionHandler)).Patch();
+			_ = new PatchClassProcessor(harmony, typeof(ExceptionsAndActivatorHandler)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(ShowLoadingExceptions)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(AddHarmonyTabWhenNecessary)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(RememberHarmonyIDs)).Patch();
@@ -29,16 +29,82 @@ namespace VisualExceptions
 	// adds exception handlers
 	//
 	[HarmonyPatch]
-	static class RunloopExceptionHandler
+	static class ExceptionsAndActivatorHandler
 	{
 		static readonly MethodInfo Handle = SymbolExtensions.GetMethodInfo(() => ExceptionState.Handle(null));
 
+		static readonly Dictionary<MethodInfo, MethodInfo> createInstanceMethods = new Dictionary<MethodInfo, MethodInfo>
+		{
+			{ SymbolExtensions.GetMethodInfo(() => Activator.CreateInstance(typeof(void))),                SymbolExtensions.GetMethodInfo(() => PatchedActivator.CreateInstance(typeof(void), null)) },
+			{ SymbolExtensions.GetMethodInfo(() => Activator.CreateInstance(typeof(void), new object[0])), SymbolExtensions.GetMethodInfo(() => PatchedActivator.CreateInstance(typeof(void), new object[0], null)) },
+		};
+
+		class PatchedActivator
+		{
+			static object GetInfo(object obj)
+			{
+				if (obj == null) return null;
+				var def = obj as Def;
+				if (def != null) return def;
+				var fields = AccessTools.GetDeclaredFields(def.GetType());
+				foreach (var field in fields)
+					if (typeof(Def).IsAssignableFrom(field.FieldType))
+					{
+						def = field.GetValue(obj) as Def;
+						if (def != null) return def;
+					}
+				return obj;
+			}
+
+			internal static object CreateInstance(Type type, object obj)
+			{
+				if (type != null) return Activator.CreateInstance(type);
+				var info = GetInfo(obj);
+				var message = "Activator.CreateInstance(type) called with a null type";
+				if (info != null) message += $", possible context={info}";
+				throw new ArgumentNullException(message);
+			}
+
+			internal static object CreateInstance(Type type, object[] objects, object me)
+			{
+				if (type != null) return Activator.CreateInstance(type, objects);
+				var info = GetInfo(me);
+				var message = $"Activator.CreateInstance(type, object[]) called with a null type, objects=[{objects.Join(o => o?.ToString() ?? "null")}]";
+				if (info != null) message += $", possible context={info}";
+				throw new ArgumentNullException(message);
+			}
+		}
+
 		[HarmonyPriority(int.MaxValue)]
-		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original)
 		{
 			var list = instructions.ToList();
-			var idx = 0;
+
 			var found = false;
+			for (var i = 0; i < list.Count; i++)
+				if (list[i].opcode == OpCodes.Call)
+					if (list[i].operand is MethodInfo methodInfo && createInstanceMethods.TryGetValue(methodInfo, out var replacement))
+					{
+						if (original.IsStatic)
+						{
+							var parameters = original.GetParameters();
+							var defIndex = parameters.Select(p => p.ParameterType).FirstIndexOf(type => type.IsGenericType == false && type.IsByRef == false && typeof(Def).IsAssignableFrom(type));
+							if (defIndex >= 0 && defIndex < parameters.Length)
+							{
+								list.Insert(i, new CodeInstruction(OpCodes.Ldarg, defIndex));
+								list[++i].operand = replacement;
+								found = true;
+							}
+						}
+						else
+						{
+							list.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+							list[++i].operand = replacement;
+							found = true;
+						}
+					}
+
+			var idx = 0;
 			try
 			{
 				while (true)
@@ -62,6 +128,7 @@ namespace VisualExceptions
 			{
 				Log.Error($"Transpiler Exception: {ex}");
 			}
+
 			if (found == false) return null;
 			return list.AsEnumerable();
 		}
@@ -80,17 +147,22 @@ namespace VisualExceptions
 			return code.blocks.Any(block => block.blockType == ExceptionBlockType.BeginCatchBlock && block.catchType == typeof(Exception));
 		}
 
+		static bool HasCreateInstance(CodeInstruction code)
+		{
+			return code.operand is MethodInfo methodInfo && createInstanceMethods.ContainsKey(methodInfo);
+		}
+
 		static bool HasCatch(MethodBase method)
 		{
 			try
 			{
-				var result = PatchProcessor.GetOriginalInstructions(method).Any(IsCatchException);
-				return result;
+				if (PatchProcessor.GetOriginalInstructions(method).Any(code => IsCatchException(code) || HasCreateInstance(code)))
+					return true;
 			}
 			catch
 			{
-				return false;
 			}
+			return false;
 		}
 	}
 
