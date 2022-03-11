@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Brrainz;
+using HarmonyLib;
 using System.Linq;
 using UnityEngine;
 using Verse;
@@ -13,6 +14,8 @@ namespace VisualExceptions
 			ExceptionState.Load();
 			if (ExceptionState.configuration.Debugging)
 				Patcher.Apply();
+
+			CrossPromotion.Install(76561197973010050);
 		}
 
 		public HarmonyMain(ModContentPack content) : base(content) { }
