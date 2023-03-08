@@ -15,6 +15,11 @@ namespace VisualExceptions
 		internal static bool patchesApplied = false;
 		internal static string harmony_id = "net.pardeike.rimworld.lib.harmony";
 
+		internal static HashSet<MethodBase> ignoredMethods = new HashSet<MethodBase>()
+		{
+			SymbolExtensions.GetMethodInfo(() => ParseHelper.FromString("", typeof(void)))
+		};
+
 		internal static void Apply()
 		{
 			var harmony = new Harmony(harmony_id);
@@ -138,7 +143,7 @@ namespace VisualExceptions
 			var methods = typeof(Pawn).Assembly.GetTypes()
 				.Where(t => t.IsGenericType == false && (t.FullName.StartsWith("Verse.") || t.FullName.StartsWith("RimWorld.") || t.FullName.StartsWith("RuntimeAudioClipLoader.")))
 				.SelectMany(t => AccessTools.GetDeclaredMethods(t))
-				.Where(m => m.IsGenericMethod == false && HasCatch(m));
+				.Where(m => Patcher.ignoredMethods.Contains(m) == false && m.IsGenericMethod == false && HasCatch(m));
 			return methods;
 		}
 
