@@ -29,7 +29,7 @@ namespace VisualExceptions
 				details = new ExceptionDetails()
 				{
 					exceptionMessage = GetMessage(exception),
-					mods = new List<ExceptionDetails.Mod>()
+					mods = []
 				};
 				Assembly lastAssembly = null;
 				var previousMethods = new HashSet<MethodBase>();
@@ -62,8 +62,10 @@ namespace VisualExceptions
 			var trace = new StackTrace(exception);
 			if (trace != null && trace.FrameCount > 0)
 			{
-				var method = trace.GetFrame(trace.FrameCount - 1).GetExpandedMethod(out _);
-				_ = sb.Append($" in {method.DeclaringType.FullName}.{method.Name}");
+				var frame = trace.GetFrame(trace.FrameCount - 1);
+				var method = frame.GetExpandedMethod(out _);
+				if (method != null)
+					_ = sb.Append($" in {method.DeclaringType.FullName}.{method.Name}");
 			}
 			_ = sb.Append($": {ExceptionHelper.getClassName(exception)}");
 

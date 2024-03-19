@@ -97,62 +97,6 @@ namespace VisualExceptions
 			return result.ToString();
 		}
 
-		// 1.2 public FloatMenuOption(string label, Action action, MenuOptionPriority priority = MenuOptionPriority.Default, Action mouseoverGuiAction = null,       Thing revalidateClickTarget = null, float extraPartWidth = 0f, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null)
-		// 1.3 public FloatMenuOption(string label, Action action, MenuOptionPriority priority = MenuOptionPriority.Default, Action<Rect> mouseoverGuiAction = null, Thing revalidateClickTarget = null, float extraPartWidth = 0f, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null, bool playSelectionSound = true, int orderInPriority = 0)
-		//
-		private static ConstructorInfo cFloatMenuOption1 = null;
-		private static object[] floatMenuOptionDefaults1 = new object[0];
-		internal static FloatMenuOption NewFloatMenuOption(string label, Action action, MenuOptionPriority priority = MenuOptionPriority.Default, Action mouseoverGuiAction = null, Thing revalidateClickTarget = null, float extraPartWidth = 0f, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null)
-		{
-			if (cFloatMenuOption1 == null)
-			{
-				cFloatMenuOption1 = AccessTools.GetDeclaredConstructors(typeof(FloatMenuOption), false)
-					.First(c => c.GetParameters().ToList().Any(p => p.ParameterType == typeof(MenuOptionPriority)));
-				floatMenuOptionDefaults1 = cFloatMenuOption1.GetParameters().Select(p => AccessTools.GetDefaultValue(p.ParameterType)).ToArray();
-			}
-			var parameters = floatMenuOptionDefaults1;
-			var isActionRect = cFloatMenuOption1.GetParameters()[3].ParameterType == typeof(Action<Rect>);
-			void actionRect(Rect r) { mouseoverGuiAction?.Invoke(); }
-			parameters[0] = label;
-			parameters[1] = action;
-			parameters[2] = priority;
-			parameters[3] = isActionRect ? (object)(Action<Rect>)actionRect : mouseoverGuiAction;
-			parameters[4] = revalidateClickTarget;
-			parameters[5] = extraPartWidth;
-			parameters[6] = extraPartOnGUI;
-			parameters[7] = revalidateWorldClickTarget;
-			return (FloatMenuOption)cFloatMenuOption1.Invoke(parameters);
-		}
-
-		// 1.2 public FloatMenuOption(string label, Action action, Texture2D itemIcon, Color iconColor, MenuOptionPriority priority = MenuOptionPriority.Default, Action mouseoverGuiAction = null,       Thing revalidateClickTarget = null, float extraPartWidth = 0f, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null)
-		// 1.3 public FloatMenuOption(string label, Action action, Texture2D itemIcon, Color iconColor, MenuOptionPriority priority = MenuOptionPriority.Default, Action<Rect> mouseoverGuiAction = null, Thing revalidateClickTarget = null, float extraPartWidth = 0f, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null, bool playSelectionSound = true, int orderInPriority = 0)
-		//
-		private static ConstructorInfo cFloatMenuOption2 = null;
-		private static object[] floatMenuOptionDefaults2 = new object[0];
-		internal static FloatMenuOption NewFloatMenuOption(string label, Action action, Texture2D itemIcon, Color iconColor, MenuOptionPriority priority = MenuOptionPriority.Default, Action mouseoverGuiAction = null, Thing revalidateClickTarget = null, float extraPartWidth = 0f, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null)
-		{
-			if (cFloatMenuOption2 == null)
-			{
-				cFloatMenuOption2 = AccessTools.GetDeclaredConstructors(typeof(FloatMenuOption), false)
-					.First(c => c.GetParameters().ToList().Any(p => p.ParameterType == typeof(Texture2D)));
-				floatMenuOptionDefaults2 = cFloatMenuOption2.GetParameters().Select(p => AccessTools.GetDefaultValue(p.ParameterType)).ToArray();
-			}
-			var parameters = floatMenuOptionDefaults2;
-			var isActionRect = cFloatMenuOption2.GetParameters()[5].ParameterType == typeof(Action<Rect>);
-			void actionRect(Rect r) { mouseoverGuiAction?.Invoke(); }
-			parameters[0] = label;
-			parameters[1] = action;
-			parameters[2] = itemIcon;
-			parameters[3] = iconColor;
-			parameters[4] = priority;
-			parameters[5] = isActionRect ? (object)(Action<Rect>)actionRect : mouseoverGuiAction;
-			parameters[6] = revalidateClickTarget;
-			parameters[7] = extraPartWidth;
-			parameters[8] = extraPartOnGUI;
-			parameters[9] = revalidateWorldClickTarget;
-			return (FloatMenuOption)cFloatMenuOption2.Invoke(parameters);
-		}
-
 		internal static void Button(Texture2D texture, Rect rect, string tipKey, bool highlight, Action action)
 		{
 			_ = highlight;

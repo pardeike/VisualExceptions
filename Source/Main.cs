@@ -7,7 +7,7 @@ using Verse;
 namespace VisualExceptions
 {
 	[StaticConstructorOnStartup]
-	class HarmonyMain : Mod
+	class HarmonyMain(ModContentPack content) : Mod(content)
 	{
 		static HarmonyMain() // loads earliest
 		{
@@ -17,8 +17,6 @@ namespace VisualExceptions
 
 			CrossPromotion.Install(76561197973010050);
 		}
-
-		public HarmonyMain(ModContentPack content) : base(content) { }
 
 		public override void DoSettingsWindowContents(Rect inRect)
 		{

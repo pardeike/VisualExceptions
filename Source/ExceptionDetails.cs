@@ -24,7 +24,7 @@ namespace VisualExceptions
 					var assembly = declaringType.Assembly;
 					meta = Mods.GetModMetaData(assembly);
 				}
-				this.methods = new List<MethodBase> { method };
+				this.methods = [method];
 			}
 
 			internal void OpenSteam()

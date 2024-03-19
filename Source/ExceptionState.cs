@@ -9,10 +9,10 @@ namespace VisualExceptions
 	static class ExceptionState
 	{
 		static readonly string configurationPath = Path.Combine(GenFilePaths.ConfigFolderPath, "VisualExceptionsSettings.json");
-		internal static Configuration configuration = new Configuration();
+		internal static Configuration configuration = new();
 
-		static readonly Dictionary<ExceptionInfo, int> exceptions = new Dictionary<ExceptionInfo, int>(new ExceptionInfo.Comparer());
-		static readonly HashSet<ExceptionInfo> bannedExceptions = new HashSet<ExceptionInfo>(new ExceptionInfo.Comparer());
+		static readonly Dictionary<ExceptionInfo, int> exceptions = new(new ExceptionInfo.Comparer());
+		static readonly HashSet<ExceptionInfo> bannedExceptions = new(new ExceptionInfo.Comparer());
 		internal static Dictionary<ExceptionInfo, int> Exceptions => exceptions;
 
 		internal static Exception Handle(Exception exception)

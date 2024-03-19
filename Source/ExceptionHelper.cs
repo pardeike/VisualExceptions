@@ -35,12 +35,12 @@ namespace VisualExceptions
 		internal static readonly GetClassName getClassName = AccessTools.MethodDelegate<GetClassName>(m_GetClassName);
 
 		internal delegate string ToStringBoolBool(Exception instance, bool needFileLineInfo, bool needMessage);
-		internal static readonly MethodInfo m_ToString = AccessTools.Method(typeof(Exception), "ToString", new[] { typeof(bool), typeof(bool) });
+		internal static readonly MethodInfo m_ToString = AccessTools.Method(typeof(Exception), "ToString", [typeof(bool), typeof(bool)]);
 		internal static readonly ToStringBoolBool toString = AccessTools.MethodDelegate<ToStringBoolBool>(m_ToString);
 
 		internal static MethodBase GetExpandedMethod(this StackFrame frame, out Patches patches)
 		{
-			patches = new Patches(new Patch[0], new Patch[0], new Patch[0], new Patch[0]);
+			patches = new Patches([], [], [], []);
 			var method = Harmony.GetMethodFromStackframe(frame);
 			if (method != null && method is MethodInfo replacement)
 			{

@@ -16,9 +16,9 @@ namespace VisualExceptions
 
 	static class Mods
 	{
-		internal static readonly Dictionary<Assembly, string> ActiveHarmonyIDs = new Dictionary<Assembly, string>();
-		internal static readonly HashSet<string> UnpatchedMods = new HashSet<string>();
-		static readonly Dictionary<Assembly, ModMetaData> MetaDataCache = new Dictionary<Assembly, ModMetaData>();
+		internal static readonly Dictionary<Assembly, string> ActiveHarmonyIDs = [];
+		internal static readonly HashSet<string> UnpatchedMods = [];
+		static readonly Dictionary<Assembly, ModMetaData> MetaDataCache = [];
 
 		internal static ModMetaData GetMetadataIfMod(MethodBase method)
 		{

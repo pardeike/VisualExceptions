@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -32,17 +31,12 @@ namespace VisualExceptions
 			var data = File.ReadAllBytes(fullPath);
 			if (data == null || data.Length == 0) return new Texture2D(1, 1);
 			var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false, true);
-			tex.LoadRawTextureData(data);
+			tex.LoadImage(data);
 			tex.Compress(true);
 			tex.wrapMode = TextureWrapMode.Clamp;
 			tex.filterMode = FilterMode.Trilinear;
 			tex.Apply(true, makeReadonly);
 			return tex;
-		}
-
-		static Texture2D[] LoadTextures(params string[] paths)
-		{
-			return paths.Select(path => LoadTexture(path)).ToArray();
 		}
 	}
 }

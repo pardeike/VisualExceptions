@@ -5,7 +5,7 @@ namespace VisualExceptions
 {
 	public class Tab : MainButtonDef
 	{
-		internal static Tab instance = new Tab();
+		internal static Tab instance = new();
 
 		public Tab() : base()
 		{
@@ -27,7 +27,7 @@ namespace VisualExceptions
 				return;
 			}
 
-			if (root is UIRoot_Entry rootEntry)
+			if (root is UIRoot_Entry)
 			{
 				AddExceptions_Entry();
 				return;

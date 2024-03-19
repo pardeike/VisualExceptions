@@ -16,11 +16,11 @@ namespace VisualExceptions
 			def = Tab.instance;
 			base.resizer = new WindowResizer()
 			{
-				minWindowSize = new Vector2(520, 160)
+				minWindowSize = new(520, 160)
 			};
 		}
 
-		public override Vector2 InitialSize => new Vector2(600, 600);
+		public override Vector2 InitialSize => new(600, 600);
 		public override Vector2 RequestedTabSize => InitialSize;
 		public override float Margin => Columns.spacing;
 
@@ -65,16 +65,16 @@ namespace VisualExceptions
 					viewHeight += Columns.spacing;
 				}
 
-				widths = new float[] { 0 };
+				widths = [0];
 				Columns.Row(viewWidth, ref viewHeight, 0, 0, widths, null, exInfo.Key.ExceptionColumn(() => exInfo.Key.GetStacktrace(), count));
 				Columns.Row(viewWidth, ref viewHeight, Columns.spacing / 2, Columns.spacing / 2, widths, null, details.topMethod.IconColumn(Assets.location));
 
-				widths = new[]
-				{
+				widths =
+				[
 					details.mods.Select((_, i) => (i + 1).Column(false)).MaxWidth(),
 					details.mods.Select(mod => mod.Column()).MaxWidth(),
 					0
-				};
+				];
 
 				details.mods.Iterate((mod, i) => Columns.Row(viewWidth, ref viewHeight, Columns.spacing / 2, 0, widths, () => ChooseMod(mod),
 					(i + 1).Column(mod.IsUnpatched()),
@@ -96,14 +96,14 @@ namespace VisualExceptions
 			var onOff = mod.meta.Active ? "Deactivate this mod (needs restart)" : "Reactivate this mod";
 			var options = new List<FloatMenuOption>();
 			if (mod.meta.OnSteamWorkshop)
-				options.Add(Tools.NewFloatMenuOption("Open Workshop Page", mod.OpenSteam, MenuOptionPriority.High));
+				options.Add(new FloatMenuOption("Open Workshop Page", mod.OpenSteam, MenuOptionPriority.High));
 			if (mod.meta.Url.NullOrEmpty() == false)
-				options.Add(Tools.NewFloatMenuOption("Open Website", mod.OpenURL, MenuOptionPriority.High));
-			options.Add(Tools.NewFloatMenuOption(onOff, () => mod.ToggleActive(), mod.meta.Active ? Assets.disableMenu : Assets.enableMenu, Color.white));
+				options.Add(new FloatMenuOption("Open Website", mod.OpenURL, MenuOptionPriority.High));
+			options.Add(new FloatMenuOption(onOff, () => mod.ToggleActive(), mod.meta.Active ? Assets.disableMenu : Assets.enableMenu, Color.white));
 			if (mod.IsUnpatched() == false)
-				options.Add(Tools.NewFloatMenuOption("Remove Harmony Patches", () => mod.Unpatch(), Assets.unpatchMenu, Color.white));
-			options.Add(Tools.NewFloatMenuOption(mod.meta.Name, null));
-			options.Add(Tools.NewFloatMenuOption("VersionIndicator".Translate(mod.version), null));
+				options.Add(new FloatMenuOption("Remove Harmony Patches", () => mod.Unpatch(), Assets.unpatchMenu, Color.white));
+			options.Add(new FloatMenuOption(mod.meta.Name, null));
+			options.Add(new FloatMenuOption("VersionIndicator".Translate(mod.version), null));
 			Find.WindowStack.Add(new FloatMenu(options));
 		}
 
@@ -115,7 +115,6 @@ namespace VisualExceptions
 			resizeable = true;
 			if (ExceptionState.configuration.TabToTheRight)
 				windowRect.x = UI.screenWidth - windowRect.width;
-			Log.Warning($"{windowRect}");
 		}
 
 		public override void Close(bool doCloseSound = true)

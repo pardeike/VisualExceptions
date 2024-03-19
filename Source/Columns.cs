@@ -11,7 +11,7 @@ namespace VisualExceptions
 {
 	static class Columns
 	{
-		static readonly Dictionary<string, string> truncatedModNamesCache = new Dictionary<string, string>();
+		static readonly Dictionary<string, string> truncatedModNamesCache = [];
 
 		internal const float spacing = 8;
 		const float iconDim = 16;

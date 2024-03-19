@@ -5,7 +5,7 @@ namespace VisualExceptions
 {
 	static class Geometry
 	{
-		static readonly GUIContent tmpTextGUIContent = new GUIContent();
+		static readonly GUIContent tmpTextGUIContent = new();
 
 		internal static Vector2 Size(this string text)
 		{

@@ -15,10 +15,10 @@ namespace VisualExceptions
 		internal static bool patchesApplied = false;
 		internal static string harmony_id = "net.pardeike.rimworld.lib.harmony";
 
-		internal static HashSet<MethodBase> ignoredMethods = new HashSet<MethodBase>()
-		{
+		internal static HashSet<MethodBase> ignoredMethods =
+		[
 			SymbolExtensions.GetMethodInfo(() => ParseHelper.FromString("", typeof(void)))
-		};
+		];
 
 		internal static void Apply()
 		{
@@ -38,7 +38,7 @@ namespace VisualExceptions
 	{
 		static readonly MethodInfo Handle = SymbolExtensions.GetMethodInfo(() => ExceptionState.Handle(null));
 
-		static readonly Dictionary<MethodInfo, MethodInfo> createInstanceMethods = new Dictionary<MethodInfo, MethodInfo>
+		static readonly Dictionary<MethodInfo, MethodInfo> createInstanceMethods = new()
 		{
 			{ SymbolExtensions.GetMethodInfo(() => Activator.CreateInstance(typeof(void))),                SymbolExtensions.GetMethodInfo(() => PatchedActivator.CreateInstance(typeof(void), null)) },
 			{ SymbolExtensions.GetMethodInfo(() => Activator.CreateInstance(typeof(void), new object[0])), SymbolExtensions.GetMethodInfo(() => PatchedActivator.CreateInstance(typeof(void), new object[0], null)) },
@@ -123,8 +123,8 @@ namespace VisualExceptions
 						continue;
 					}
 					list.Insert(idx, new CodeInstruction(OpCodes.Call, Handle) { blocks = code.blocks, labels = code.labels });
-					code.labels = new List<Label>();
-					code.blocks = new List<ExceptionBlock>();
+					code.labels = [];
+					code.blocks = [];
 					found = true;
 					idx += 2;
 				}
