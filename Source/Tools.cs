@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,7 +62,8 @@ namespace VisualExceptions
 
 		internal static string ShortDescription(this Type type)
 		{
-			if (type is null) return "null";
+			if (type is null)
+				return "null";
 			var result = type.Name;
 			if (type.IsGenericType)
 			{
@@ -82,15 +82,19 @@ namespace VisualExceptions
 
 		internal static string ShortDescription(this MethodBase member)
 		{
-			if (member is null) return "null";
+			if (member is null)
+				return "null";
 			var returnType = AccessTools.GetReturnedType(member);
 			var result = new StringBuilder();
-			if (member.IsStatic) _ = result.Append("static ");
-			if (member.IsAbstract) _ = result.Append("abstract ");
-			if (member.IsVirtual) _ = result.Append("virtual ");
+			if (member.IsStatic)
+				_ = result.Append("static ");
+			if (member.IsAbstract)
+				_ = result.Append("abstract ");
+			if (member.IsVirtual)
+				_ = result.Append("virtual ");
 			if (returnType != typeof(void))
 				_ = result.Append($"{returnType.ShortDescription()} ");
-			if (member.DeclaringType is object)
+			if (member.DeclaringType is not null)
 				_ = result.Append($"{member.DeclaringType.ShortDescription()}.");
 			var parameterString = member.GetParameters().Join(p => $"{p.ParameterType.ShortDescription()} {p.Name}");
 			_ = result.Append($"{member.Name} ({parameterString})");
@@ -108,7 +112,8 @@ namespace VisualExceptions
 				GUI.color = oldColor;
 			}
 			TooltipHandler.TipRegionByKey(rect, tipKey);
-			if (Widgets.ButtonInvisible(rect)) action();
+			if (Widgets.ButtonInvisible(rect))
+				action();
 		}
 	}
 }

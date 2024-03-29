@@ -8,18 +8,43 @@ using System.Reflection;
 using System.Text;
 using Verse;
 using Verse.Sound;
+using static HarmonyLib.AccessTools;
 
 namespace VisualExceptions
 {
 	class ExceptionInfo
 	{
-		int hash = 0;
-		internal readonly Exception exception;
+		delegate string GetClassNameDelegate(Exception instance);
+		static readonly MethodInfo m_GetClassName = Method(typeof(Exception), "GetClassName");
+		static readonly GetClassNameDelegate GetClassName = MethodDelegate<GetClassNameDelegate>(m_GetClassName);
+
+		delegate string ExceptionToStringDelegate(Exception instance, bool needFileLineInfo, bool needMessage);
+		static readonly MethodInfo m_ToString = Method(typeof(Exception), "ToString", [typeof(bool), typeof(bool)]);
+		static readonly ExceptionToStringDelegate ExceptionToString = MethodDelegate<ExceptionToStringDelegate>(m_ToString);
+
+		delegate string ExtractHarmonyEnhancedStackTraceDelegate(StackTrace trace, bool forceRefresh, out int hashRef);
+		static readonly MethodInfo m_ExtractHarmonyEnhancedStackTrace = Method("HarmonyMod.ExceptionTools:ExtractHarmonyEnhancedStackTrace", [typeof(StackTrace), typeof(bool), typeof(int).MakeByRefType()]);
+		static readonly ExtractHarmonyEnhancedStackTraceDelegate ExtractHarmonyEnhancedStackTrace = MethodDelegate<ExtractHarmonyEnhancedStackTraceDelegate>(m_ExtractHarmonyEnhancedStackTrace);
+
+		readonly Exception exception;
+		private StackTrace trace;
+		private string stackTrace;
+		private int hash;
+
 		ExceptionDetails details = null;
 
 		internal ExceptionInfo(Exception exception)
 		{
 			this.exception = exception;
+		}
+
+		internal void Analyze()
+		{
+			if (hash == 0)
+			{
+				trace = new StackTrace(exception);
+				stackTrace = ExtractHarmonyEnhancedStackTrace(trace, true, out hash);
+			}
 		}
 
 		internal ExceptionDetails GetReport()
@@ -57,17 +82,17 @@ namespace VisualExceptions
 
 		internal string GetStacktrace()
 		{
+			Analyze();
 			var sb = new StringBuilder();
-			_ = sb.Append("Exception");
-			var trace = new StackTrace(exception);
+			_ = sb.Append($"Exception");
 			if (trace != null && trace.FrameCount > 0)
 			{
 				var frame = trace.GetFrame(trace.FrameCount - 1);
-				var method = frame.GetExpandedMethod(out _);
+				var method = Harmony.GetOriginalMethodFromStackframe(frame);
 				if (method != null)
 					_ = sb.Append($" in {method.DeclaringType.FullName}.{method.Name}");
 			}
-			_ = sb.Append($": {ExceptionHelper.getClassName(exception)}");
+			_ = sb.Append($": {GetClassName(exception)}");
 
 			var message = exception.Message;
 			if (message != null && message.Length > 0)
@@ -75,11 +100,10 @@ namespace VisualExceptions
 
 			if (exception.InnerException != null)
 			{
-				var txt = ExceptionHelper.toString(exception.InnerException, true, true);
+				var txt = ExceptionToString(exception.InnerException, true, true);
 				_ = sb.Append($" ---> {txt}\n   --- End of inner exception stack trace ---");
 			}
 
-			var stackTrace = trace.WithHarmonyString();
 			if (stackTrace != null)
 				_ = sb.Append($"\n{stackTrace}");
 
@@ -101,7 +125,8 @@ namespace VisualExceptions
 
 		string GetMessage(Exception ex)
 		{
-			var str = ex.GetType().FullName;
+			Analyze();
+			var str = $"[Ref {hash:X}] {ex.GetType().FullName}";
 			var msg = ex.Message;
 			if (msg.NullOrEmpty() == false)
 				str += ": " + msg.Trim();
@@ -144,8 +169,7 @@ namespace VisualExceptions
 
 		public override int GetHashCode()
 		{
-			if (hash == 0)
-				hash = GetStacktrace().GetHashCode();
+			Analyze();
 			return hash;
 		}
 	}
