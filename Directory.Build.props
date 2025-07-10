@@ -4,7 +4,7 @@
 		<ModName>Visual Exceptions</ModName>
 		<ModFileName>VisualExceptions</ModFileName>
 		<Repository>https://github.com/pardeike/VisualExceptions</Repository>
-		<ModVersion>1.3.2.0</ModVersion>
+		<ModVersion>1.4.0.0</ModVersion>
 		<ProjectGuid>{B0D46BB5-08FF-4E04-9EFD-3E32E38A9CC2}</ProjectGuid>
 	</PropertyGroup>
 
