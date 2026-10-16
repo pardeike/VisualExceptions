@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -53,11 +54,30 @@ namespace VisualExceptions
 				action(item, i++);
 		}
 
-		internal static string GetAuthor(this ModMetaData metaData)
+		internal static string GetAuthor(this ModMetaData metaData) => metaData.AuthorsString ?? "";
+
+		// Splits Harmony Mod's "[Ref XXXXXXXX]\n" prefix off a stack trace.
+		internal static string SplitReference(string text, out int hash)
 		{
-			var s1 = Traverse.Create(metaData).Property("AuthorsString").GetValue<string>();
-			var s2 = Traverse.Create(metaData).Property("Author").GetValue<string>();
-			return s1 ?? s2 ?? "";
+			hash = 0;
+			const string prefix = "[Ref ";
+			const int end = 13; // prefix + 8 hex digits
+			if (text.StartsWith(prefix, StringComparison.Ordinal) && text.Length > end + 1 && text[end] == ']' && text[end + 1] == '\n'
+				&& int.TryParse(text.Substring(prefix.Length, 8), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out hash))
+				return text.Substring(end + 2);
+			return text;
+		}
+
+		// Same FNV-1a hash Harmony Mod uses for its [Ref] IDs.
+		internal static int StableHash(string text)
+		{
+			unchecked
+			{
+				uint hash = 2166136261;
+				foreach (var character in text)
+					hash = (hash ^ character) * 16777619;
+				return (int)hash;
+			}
 		}
 
 		internal static string ShortDescription(this Type type)

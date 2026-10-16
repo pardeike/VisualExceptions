@@ -25,7 +25,6 @@ namespace VisualExceptions
 			var harmony = new Harmony(harmony_id);
 			_ = new PatchClassProcessor(harmony, typeof(ExceptionsAndActivatorHandler)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(ShowLoadingExceptions)).Patch();
-			_ = new PatchClassProcessor(harmony, typeof(AddHarmonyTabWhenNecessary)).Patch();
 			_ = new PatchClassProcessor(harmony, typeof(RememberHarmonyIDs)).Patch();
 			patchesApplied = true;
 		}
@@ -51,7 +50,7 @@ namespace VisualExceptions
 				if (obj == null) return null;
 				var def = obj as Def;
 				if (def != null) return def;
-				var fields = AccessTools.GetDeclaredFields(def.GetType());
+				var fields = AccessTools.GetDeclaredFields(obj.GetType());
 				foreach (var field in fields)
 					if (typeof(Def).IsAssignableFrom(field.FieldType))
 					{
@@ -96,7 +95,7 @@ namespace VisualExceptions
 							var defIndex = parameters.Select(p => p.ParameterType).FirstIndexOf(type => type.IsGenericType == false && type.IsByRef == false && typeof(Def).IsAssignableFrom(type));
 							if (defIndex >= 0 && defIndex < parameters.Length)
 							{
-								list.Insert(i, new CodeInstruction(OpCodes.Ldarg, defIndex));
+								list.Insert(i, CodeInstruction.LoadArgument(defIndex));
 								list[++i].operand = replacement;
 								found = true;
 							}
@@ -140,8 +139,8 @@ namespace VisualExceptions
 
 		internal static IEnumerable<MethodBase> TargetMethods()
 		{
-			var methods = typeof(Pawn).Assembly.GetTypes()
-				.Where(t => t.IsGenericType == false && (t.FullName.StartsWith("Verse.") || t.FullName.StartsWith("RimWorld.") || t.FullName.StartsWith("RuntimeAudioClipLoader.")))
+			var methods = AccessTools.GetTypesFromAssembly(typeof(Pawn).Assembly)
+				.Where(t => t.IsGenericType == false && t.FullName != null && (t.FullName.StartsWith("Verse.") || t.FullName.StartsWith("RimWorld.") || t.FullName.StartsWith("RuntimeAudioClipLoader.")))
 				.SelectMany(t => AccessTools.GetDeclaredMethods(t))
 				.Where(m => Patcher.ignoredMethods.Contains(m) == false && m.IsGenericMethod == false && HasCatch(m));
 			return methods;
@@ -171,35 +170,17 @@ namespace VisualExceptions
 		}
 	}
 
-	// opens exception window on main screen in case there is something to report
+	// opens the exception window on the main menu when there is something new to report
+	// (in-game, the tab's button worker does this)
 	//
 	[HarmonyPatch(typeof(MainMenuDrawer))]
 	[HarmonyPatch(nameof(MainMenuDrawer.MainMenuOnGUI))]
 	static class ShowLoadingExceptions
 	{
-		static bool firstTime = true;
-
 		internal static void Postfix()
 		{
-			if (firstTime && ExceptionState.Exceptions.Count > 0)
-			{
-				firstTime = false;
-				Tab.AddExceptions_Entry();
-			}
-		}
-	}
-
-	// adds harmony tab to the leftmost position on the bottom of the screen
-	// in case there is something to report
-	//
-	[HarmonyPatch(typeof(UIRoot_Play))]
-	[HarmonyPatch(nameof(UIRoot_Play.Init))]
-	static class AddHarmonyTabWhenNecessary
-	{
-		internal static void Postfix()
-		{
-			if (ExceptionState.Exceptions.Count > 0)
-				Tab.AddExceptions();
+			if (ExceptionState.TakeAttention())
+				Tab.ShowInMainMenu();
 		}
 	}
 
@@ -227,7 +208,7 @@ namespace VisualExceptions
 			}
 			i++;
 			if (i >= frames.Length) return;
-			var assembly = frames[i].GetMethod().DeclaringType.Assembly;
+			var assembly = frames[i].GetMethod()?.DeclaringType?.Assembly;
 			if (assembly != null)
 				Mods.ActiveHarmonyIDs[assembly] = id;
 		}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Always registered; TabButtonWorker hides it while there is nothing to report. -->
+  <MainButtonDef>
+    <defName>VisualExceptionsTab</defName>
+    <label>Visual Exceptions</label>
+    <description>Exceptions caught since startup and the mods involved in them.</description>
+    <workerClass>VisualExceptions.TabButtonWorker</workerClass>
+    <tabWindowClass>VisualExceptions.ExceptionInspector</tabWindowClass>
+    <iconPath>HarmonyTab</iconPath>
+    <minimized>true</minimized>
+    <validWithoutMap>true</validWithoutMap>
+    <canBeTutorDenied>false</canBeTutorDenied>
+    <order>-100000</order>
+  </MainButtonDef>
+</Defs>

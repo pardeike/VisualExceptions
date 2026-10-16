@@ -13,7 +13,7 @@ namespace VisualExceptions
 
 		public ExceptionInspector() : base()
 		{
-			def = Tab.instance;
+			def = Tab.Def;
 			base.resizer = new WindowResizer()
 			{
 				minWindowSize = new(520, 160)
@@ -52,7 +52,7 @@ namespace VisualExceptions
 			var viewWidth = viewRect.width;
 
 			var viewHeight = 0f;
-			var exInfos = new Dictionary<ExceptionInfo, int>(ExceptionState.Exceptions);
+			var exInfos = ExceptionState.Snapshot();
 			foreach (var exInfo in exInfos)
 			{
 				var details = exInfo.Key.GetReport();
@@ -121,16 +121,6 @@ namespace VisualExceptions
 		{
 			ExceptionState.Clear();
 			base.Close(doCloseSound);
-		}
-
-		public override void PostClose()
-		{
-			base.PostClose();
-			if (ExceptionState.Exceptions.Count == 0 && Find.UIRoot is UIRoot_Play rootPlay)
-			{
-				var mainButtons = rootPlay.mainButtonsRoot;
-				_ = mainButtons.allButtonsInOrder.RemoveAll(def => def == Tab.instance);
-			}
 		}
 	}
 }

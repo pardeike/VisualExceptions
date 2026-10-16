@@ -1,61 +1,50 @@
 ﻿using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace VisualExceptions
 {
-	public class Tab : MainButtonDef
+	[DefOf]
+	public static class Tab
 	{
-		internal static Tab instance = new();
+		public static MainButtonDef VisualExceptionsTab;
 
-		public Tab() : base()
+		static Tab() => DefOfHelper.EnsureInitializedInCtor(typeof(Tab));
+
+		internal static MainButtonDef Def => VisualExceptionsTab;
+
+		// MainButtonsRoot sorts by order when a game is created or loaded.
+		internal static void ApplyOrder()
 		{
-			tabWindowClass = typeof(ExceptionInspector);
-			defName = "harmony";
-			description = "Harmony";
-			validWithoutMap = true;
-			minimized = true;
+			if (Def != null)
+				Def.order = ExceptionState.configuration.TabToTheRight ? 100000 : -100000;
 		}
 
-		internal static void AddExceptions()
+		// Main menu has no button bar, so open the window directly.
+		internal static void ShowInMainMenu()
 		{
-			var root = Find.UIRoot;
-			if (root == null) return;
-
-			if (root is UIRoot_Play rootPlay)
-			{
-				AddExceptions_Play(rootPlay);
+			if (Def == null || Find.WindowStack.IsOpen<ExceptionInspector>())
 				return;
-			}
-
-			if (root is UIRoot_Entry)
-			{
-				AddExceptions_Entry();
-				return;
-			}
+			Find.WindowStack.Add(new ExceptionInspector());
+			Tools.PlayErrorSound();
 		}
+	}
 
-		internal static void AddExceptions_Play(UIRoot_Play rootPlay)
-		{
-			var allTabs = rootPlay.mainButtonsRoot.allButtonsInOrder;
-			if (allTabs.Contains(instance) == false)
-			{
-				instance.icon = Assets.harmonyTab;
-				if (ExceptionState.configuration.TabToTheRight)
-					allTabs.Add(instance);
-				else
-					allTabs.Insert(0, instance);
-				Tools.PlayErrorSound();
-			}
-		}
+	[StaticConstructorOnStartup]
+	static class TabStartup
+	{
+		static TabStartup() => Tab.ApplyOrder();
+	}
 
-		internal static void AddExceptions_Entry()
+	public class TabButtonWorker : MainButtonWorker_ToggleTab
+	{
+		public override bool Visible => ExceptionState.HasExceptions && base.Visible;
+
+		public override void DoButton(Rect rect)
 		{
-			if (Find.WindowStack.IsOpen<ExceptionInspector>() == false)
-			{
-				instance.icon = Assets.harmonyTab;
-				Find.WindowStack.Add(new ExceptionInspector { def = instance });
+			if (ExceptionState.TakeAttention())
 				Tools.PlayErrorSound();
-			}
+			base.DoButton(rect);
 		}
 	}
 }

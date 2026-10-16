@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 using Verse;
 
 namespace VisualExceptions
@@ -36,7 +36,7 @@ namespace VisualExceptions
 			internal void OpenURL()
 			{
 				if (meta.Url.NullOrEmpty() == false)
-					_ = Process.Start(meta.Url);
+					Application.OpenURL(meta.Url);
 			}
 
 			internal bool IsUnpatched()

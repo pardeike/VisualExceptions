@@ -102,6 +102,16 @@ namespace VisualExceptions
 			return AddMetadata(info.Finalizers.Where(t => t.owner != Patcher.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
 		}
 
+		// Harmony 3 inner patches run inside the original around specific calls
+		internal static IEnumerable<ModInfo> GetInnerPatches(Patches info, bool includeFinalizers)
+		{
+			if (info == null) return new List<ModInfo>().AsEnumerable();
+			var patches = info.InnerPostfixes.Concat(info.InnerPrefixes);
+			if (includeFinalizers)
+				patches = info.InnerFinalizers.Concat(patches);
+			return AddMetadata(patches.Where(t => t.owner != Patcher.harmony_id).OrderBy(t => t.priority).Select(t => t.PatchMethod));
+		}
+
 		static IEnumerable<ModInfo> AddMetadata(IEnumerable<MethodInfo> methods)
 		{
 			return methods.Select(method =>

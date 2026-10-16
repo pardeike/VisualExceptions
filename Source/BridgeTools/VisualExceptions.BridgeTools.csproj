@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>VisualExceptions</RootNamespace>
+    <AssemblyName>VisualExceptions.BridgeTools</AssemblyName>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>../../artifacts/BridgeTools/VisualExceptions/</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <Version>$(ModVersion)</Version>
+    <AssemblyVersion>$(ModVersion)</AssemblyVersion>
+    <FileVersion>$(ModVersion)</FileVersion>
+    <InformationalVersion>$(ModVersion)</InformationalVersion>
+    <VisualExceptionsAssemblyPath Condition="'$(VisualExceptionsAssemblyPath)' == ''">../../1.7/Assemblies/VisualExceptions.dll</VisualExceptionsAssemblyPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="VisualExceptions">
+      <HintPath>$(VisualExceptionsAssemblyPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.7.4979-alpha" />
+    <PackageReference Include="RimBridgeServer.Sdk" Version="2.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
+</Project>

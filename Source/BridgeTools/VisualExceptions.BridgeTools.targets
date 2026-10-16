@@ -1,0 +1,47 @@
+<Project>
+  <PropertyGroup>
+    <PythonCommand Condition="'$(PythonCommand)' == '' And '$(OS)' == 'Windows_NT'">py</PythonCommand>
+    <PythonCommand Condition="'$(PythonCommand)' == '' And '$(OS)' != 'Windows_NT'">python3</PythonCommand>
+    <!-- Development builds pair the companion by default; release builds pass false. -->
+    <BuildBridgeTools Condition="'$(BuildBridgeTools)' == ''">true</BuildBridgeTools>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BridgeTools\**\*.cs" />
+    <None Include="BridgeTools\**\*" />
+  </ItemGroup>
+
+  <Target Name="RestoreBridgeTools" BeforeTargets="Build"
+          Condition="'$(BuildBridgeTools)' != 'false' And '$(BridgeToolsRestored)' != 'true'">
+    <Exec Command="&quot;$(DOTNET_HOST_PATH)&quot; restore &quot;$(MSBuildProjectDirectory)/BridgeTools/VisualExceptions.BridgeTools.csproj&quot; --nologo --verbosity quiet" />
+  </Target>
+
+  <Target Name="BuildBridgeTools" DependsOnTargets="RestoreBridgeTools" AfterTargets="Build"
+          Condition="'$(BuildBridgeTools)' != 'false'">
+    <MSBuild Projects="$(MSBuildProjectDirectory)/BridgeTools/VisualExceptions.BridgeTools.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);VisualExceptionsAssemblyPath=$(TargetPath)" />
+  </Target>
+
+  <Target Name="ValidateRimworldDeployRoot" BeforeTargets="Build"
+          Condition="'$(RIMWORLD_MOD_DIR)' != '' And '$(RimworldDeployGuardInner)' != 'true'">
+    <Exec Command="&quot;$(PythonCommand)&quot; &quot;$(MSBuildProjectDirectory)/../scripts/rimworld_deploy_guard.py&quot; validate &quot;$(RIMWORLD_MOD_DIR)&quot; &quot;$(MSBuildProjectFullPath)&quot; &quot;$(ModFileName)&quot; &quot;VisualExceptions&quot;" />
+  </Target>
+
+  <Target Name="DeployModPair" DependsOnTargets="BuildBridgeTools" AfterTargets="Build"
+          Condition="'$(RIMWORLD_MOD_DIR)' != '' And '$(RimworldDeployGuardInner)' != 'true'">
+    <Exec Command="&quot;$(PythonCommand)&quot; &quot;$(MSBuildProjectDirectory)/../scripts/rimworld_deploy_guard.py&quot; deploy &quot;$(RIMWORLD_MOD_DIR)&quot; &quot;$(MSBuildProjectFullPath)&quot; &quot;$(Configuration)&quot; &quot;$(Platform)&quot; &quot;$(ModFileName)&quot; &quot;VisualExceptions&quot; &quot;$(BuildBridgeTools)&quot;" />
+  </Target>
+
+  <Target Name="CopyBridgeToolsAfterMainDeploy" AfterTargets="_CopyToRimworldUnlocked"
+          Condition="'$(RIMWORLD_MOD_DIR)' != '' And '$(RimworldDeployGuardInner)' == 'true' And '$(BuildBridgeTools)' != 'false'">
+    <PropertyGroup>
+      <GlobalBridgeToolsDir>$(RIMWORLD_MOD_DIR)\..\BridgeTools</GlobalBridgeToolsDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <CopyBridgeTools Include="../artifacts/BridgeTools/VisualExceptions/VisualExceptions.BridgeTools.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyBridgeTools)" DestinationFolder="$(GlobalBridgeToolsDir)/VisualExceptions"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

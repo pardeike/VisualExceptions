@@ -1,5 +1,6 @@
 ﻿using Brrainz;
 using HarmonyLib;
+using System;
 using System.Linq;
 using UnityEngine;
 using Verse;
@@ -15,7 +16,14 @@ namespace VisualExceptions
 			if (ExceptionState.configuration.Debugging)
 				Patcher.Apply();
 
-			CrossPromotion.Install(76561197973010050);
+			try
+			{
+				CrossPromotion.Install(76561197973010050);
+			}
+			catch (Exception ex)
+			{
+				Log.Warning($"Visual Exceptions: cross promotion unavailable: {ex.Message}");
+			}
 		}
 
 		public override void DoSettingsWindowContents(Rect inRect)
@@ -39,7 +47,10 @@ namespace VisualExceptions
 				}
 			}
 			if (needsSave)
+			{
 				ExceptionState.Save();
+				Tab.ApplyOrder();
+			}
 
 			list.End();
 		}

@@ -8,28 +8,16 @@ using System.Reflection;
 using System.Text;
 using Verse;
 using Verse.Sound;
-using static HarmonyLib.AccessTools;
 
 namespace VisualExceptions
 {
 	class ExceptionInfo
 	{
-		delegate string GetClassNameDelegate(Exception instance);
-		static readonly MethodInfo m_GetClassName = Method(typeof(Exception), "GetClassName");
-		static readonly GetClassNameDelegate GetClassName = MethodDelegate<GetClassNameDelegate>(m_GetClassName);
-
-		delegate string ExceptionToStringDelegate(Exception instance, bool needFileLineInfo, bool needMessage);
-		static readonly MethodInfo m_ToString = Method(typeof(Exception), "ToString", [typeof(bool), typeof(bool)]);
-		static readonly ExceptionToStringDelegate ExceptionToString = MethodDelegate<ExceptionToStringDelegate>(m_ToString);
-
-		delegate string ExtractHarmonyEnhancedStackTraceDelegate(StackTrace trace, bool forceRefresh, out int hashRef);
-		static readonly MethodInfo m_ExtractHarmonyEnhancedStackTrace = Method("HarmonyMod.ExceptionTools:ExtractHarmonyEnhancedStackTrace", [typeof(StackTrace), typeof(bool), typeof(int).MakeByRefType()]);
-		static readonly ExtractHarmonyEnhancedStackTraceDelegate ExtractHarmonyEnhancedStackTrace = MethodDelegate<ExtractHarmonyEnhancedStackTraceDelegate>(m_ExtractHarmonyEnhancedStackTrace);
-
 		readonly Exception exception;
 		private StackTrace trace;
 		private string stackTrace;
 		private int hash;
+		private bool analyzed;
 
 		ExceptionDetails details = null;
 
@@ -40,11 +28,16 @@ namespace VisualExceptions
 
 		internal void Analyze()
 		{
+			if (analyzed)
+				return;
+			trace = new StackTrace(exception);
+			// Exception.StackTrace is the text RimWorld logs. Harmony Mod enhances it
+			// and, unless disabled, prefixes it with the [Ref XXXXXXXX] users see in logs.
+			var text = exception.StackTrace ?? "";
+			stackTrace = Tools.SplitReference(text, out hash);
 			if (hash == 0)
-			{
-				trace = new StackTrace(exception);
-				stackTrace = ExtractHarmonyEnhancedStackTrace(trace, true, out hash);
-			}
+				hash = Tools.StableHash(stackTrace.Length > 0 ? stackTrace : $"{exception.GetType().FullName}: {exception.Message}");
+			analyzed = true;
 		}
 
 		internal ExceptionDetails GetReport()
@@ -92,7 +85,7 @@ namespace VisualExceptions
 				if (method != null)
 					_ = sb.Append($" in {method.DeclaringType.FullName}.{method.Name}");
 			}
-			_ = sb.Append($": {GetClassName(exception)}");
+			_ = sb.Append($": {exception.GetType()}");
 
 			var message = exception.Message;
 			if (message != null && message.Length > 0)
@@ -100,7 +93,7 @@ namespace VisualExceptions
 
 			if (exception.InnerException != null)
 			{
-				var txt = ExceptionToString(exception.InnerException, true, true);
+				var txt = exception.InnerException.ToString();
 				_ = sb.Append($" ---> {txt}\n   --- End of inner exception stack trace ---");
 			}
 
@@ -126,7 +119,7 @@ namespace VisualExceptions
 		string GetMessage(Exception ex)
 		{
 			Analyze();
-			var str = $"[Ref {hash:X}] {ex.GetType().FullName}";
+			var str = $"[Ref {hash:X8}] {ex.GetType().FullName}";
 			var msg = ex.Message;
 			if (msg.NullOrEmpty() == false)
 				str += ": " + msg.Trim();
@@ -153,6 +146,7 @@ namespace VisualExceptions
 				modInfos.AddRange(Mods.GetPostfixes(patches));
 				modInfos.AddRange(Mods.GetPrefixes(patches));
 				modInfos.AddRange(Mods.GetTranspilers(patches));
+				modInfos.AddRange(Mods.GetInnerPatches(patches, ExceptionState.configuration.IncludeFinalizers));
 
 				var metaData = Mods.GetMetadataIfMod(method);
 				if (metaData != null)
