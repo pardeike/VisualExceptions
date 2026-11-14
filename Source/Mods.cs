@@ -119,7 +119,7 @@ namespace VisualExceptions
 				var assembly = method.DeclaringType.Assembly;
 				var metaData = GetModMetaData(assembly);
 				return new ModInfo { method = method, metaData = metaData };
-			});
+			}).Where(info => info.metaData != null);
 		}
 	}
 }

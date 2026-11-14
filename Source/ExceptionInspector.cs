@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,15 +15,15 @@ namespace VisualExceptions
 		public ExceptionInspector() : base()
 		{
 			def = Tab.Def;
-			base.resizer = new WindowResizer()
+			AccessTools.Field(typeof(Window), "resizer").SetValue(this, new WindowResizer()
 			{
 				minWindowSize = new(520, 160)
-			};
+			});
 		}
 
 		public override Vector2 InitialSize => new(600, 600);
 		public override Vector2 RequestedTabSize => InitialSize;
-		public override float Margin => Columns.spacing;
+		protected override float Margin => Columns.spacing;
 
 		public override void DoWindowContents(Rect inRect)
 		{
@@ -107,7 +108,7 @@ namespace VisualExceptions
 			Find.WindowStack.Add(new FloatMenu(options));
 		}
 
-		public override void SetInitialSizeAndPosition()
+		protected override void SetInitialSizeAndPosition()
 		{
 			base.SetInitialSizeAndPosition();
 			doCloseX = true;

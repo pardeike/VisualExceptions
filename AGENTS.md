@@ -12,6 +12,9 @@ BridgeTools companion into `artifacts/BridgeTools`, then prints `ok`. Full outpu
   The guard refuses the wrong path.
 - `--no-deploy` builds only. The release candidate passes `-p:BuildBridgeTools=false`.
 - Quit RimWorld before deploying; the guard checks.
+- The companion restores the published `RimBridgeServer.Sdk` 2.0.0 package from NuGet.org.
+- Both projects use `Krafs.Rimworld.Ref` 1.7.5005-unstable and public
+  `Lib.Harmony.Ref` 3.0.0-rc.5. `NuGet.Config` selects NuGet.org.
 
 ## Layout
 
@@ -32,6 +35,11 @@ Companion tools (`Source/BridgeTools/VisualExceptionsTools.cs`):
 `visualexceptions/get_state`, `visualexceptions/clear_exceptions` and
 `visualexceptions/raise_test_exception`, which throws once inside vanilla's
 `GameComponentTick` try/catch during play.
+
+After a paired build/deploy and restart, `visualexceptions/validate_patch_metadata`
+tests generated and unowned patches across every Harmony patch category.
+It also reproduces the inspector's report path with a real generated prefix.
+Set `showInspector=true` to leave its test exception open for a rendering check.
 
 GABS game id `visualexceptions-17` launches RimWorld with an isolated profile in
 `.build/UserData` (Harmony, RimBridgeServer, Visual Exceptions, Core).
